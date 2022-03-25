@@ -1,9 +1,10 @@
 import express, { Application, Request, Response, NextFunction } from 'express'
 const app: Application = express()
 const cors = require('cors')
+require('dotenv').config()
 
 const hobbiesController = require('./controllers/hobbies')
-
+const PORT: number | string = process.env.PORT || 3003
 
 //Middleware
 app.use(express.json())
@@ -17,6 +18,6 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 //Start Server
-app.listen(3000, () => {
-  console.log('Listening on 3000');
+app.listen(PORT, () => {
+  console.log(`Listening on ${PORT}...`);
 })

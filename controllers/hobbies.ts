@@ -68,13 +68,13 @@ router.delete('/:id', (req: Request, res: Response) => {
 */
 router.put('/:id', (req: Request, res: Response) => {
   postgres.query(`UPDATE hobbies SET name = '${req.body.name}', description = '${req.body.description}' WHERE id = ${req.params.id};`, (err: any, updateHobby: any) => {
-    postgres.query(`SELECT * FROM hobbies WHERE id = ${req.params.id};`, (err: any, updatedHobby: any) =>
+    postgres.query(`SELECT * FROM hobbies WHERE id = ${req.params.id};`, (err: any, updatedHobby: any) => {
       if (err) {
         console.log(err)
       } else {
         res.json(updatedHobby.rows)
       }
-    )
+    })
   })
 })
 

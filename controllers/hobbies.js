@@ -23,13 +23,13 @@ router.get('/', (req, res) => {
 *Create New
 */
 router.post('/', (req, res) => {
-    console.log(req.body);
-    postgres.query(`INSERT INTO hobbies (name, description) VALUES ('${req.body.name}', '${req.body.description}');`, (err, insertedHobby) => {
+    postgres.query(`INSERT INTO hobbies (name, description, specs, aspectscores, keywords, resources) VALUES ('${req.body.name}', '${req.body.description}', '${JSON.stringify(req.body.specs)}', '${JSON.stringify(req.body.aspectscores)}', ARRAY[${req.body.keywords}], ARRAY[${req.body.resources}]);`, (err, insertedHobby) => {
         postgres.query('SELECT * FROM hobbies ORDER BY id desc LIMIT 1;', (err, newHobby) => {
             if (err) {
                 console.log(err);
             }
             else {
+                console.log(newHobby.rows);
                 res.json(newHobby.rows);
             }
         });
@@ -65,7 +65,8 @@ router.delete('/:id', (req, res) => {
 *Update by id
 */
 router.put('/:id', (req, res) => {
-    postgres.query(`UPDATE hobbies SET name = '${req.body.name}', description = '${req.body.description}' WHERE id = ${req.params.id};`, (err, updateHobby) => {
+    console.log(JSON.stringify(req.body.specs));
+    postgres.query(`UPDATE hobbies SET name = '${req.body.name}', description = '${req.body.description}', specs = specs || '${JSON.stringify(req.body.specs)}', aspectscores = aspectscores || '${JSON.stringify(req.body.aspectscores)}', keywords = ARRAY[${req.body.keywords}], resources = ARRAY[${req.body.resources}] WHERE id = ${req.params.id};`, (err, updateHobby) => {
         postgres.query(`SELECT * FROM hobbies WHERE id = ${req.params.id};`, (err, updatedHobby) => {
             if (err) {
                 console.log(err);

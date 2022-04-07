@@ -63,18 +63,23 @@ router.delete('/:id', (req, res) => {
 });
 /**
 *Update by id
+* https://stackoverflow.com/questions/38883233/postgres-jsonb-set-multiple-keys-update
+* complex update came from this article, super helpful
+* If you handle SQL Injection, I think it will fix the ' issue
 */
 router.put('/:id', (req, res) => {
-    console.log(JSON.stringify(req.body.specs));
-    postgres.query(`UPDATE hobbies SET name = '${req.body.name}', description = '${req.body.description}', specs = specs || '${JSON.stringify(req.body.specs)}', aspectscores = aspectscores || '${JSON.stringify(req.body.aspectscores)}', keywords = ARRAY[${req.body.keywords}], resources = ARRAY[${req.body.resources}] WHERE id = ${req.params.id};`, (err, updateHobby) => {
-        postgres.query(`SELECT * FROM hobbies WHERE id = ${req.params.id};`, (err, updatedHobby) => {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                res.json(updatedHobby.rows);
-            }
-        });
+    const query = {
+        text: 'UPDATE hobbies SET name = $1, description = $2, specs = specs || $3, aspectscores = aspectscores || $4, keywords = ARRAY[$5], resources = ARRAY[$6] WHERE id = $7;',
+        values: [req.body.name, req.body.description, JSON.stringify(req.body.specs), JSON.stringify(req.body.aspectscores), req.body.keywords, req.body.resources, Number(req.params.id)],
+    };
+    console.log(query);
+    postgres.query(query, (err, updatedHobby) => {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            res.json(updatedHobby.rows);
+        }
     });
 });
 module.exports = router;

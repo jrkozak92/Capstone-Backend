@@ -47,15 +47,23 @@ router.get('/', (req: Request, res: Response) => {
 *Create New
 */
 router.post('/', (req: Request, res: Response) => {
-  postgres.query(`INSERT INTO hobbies (name, description, specs, aspectscores, keywords, resources) VALUES ('${req.body.name}', '${req.body.description}', '${JSON.stringify(req.body.specs)}', '${JSON.stringify(req.body.aspectscores)}', ARRAY[${req.body.keywords}], ARRAY[${req.body.resources}]);`, (err: any, insertedHobby: any) => {
-    postgres.query('SELECT * FROM hobbies ORDER BY id desc LIMIT 1;', (err: any, newHobby: any) => {
-      if (err) {
-        console.log(err)
-      } else {
-        console.log(newHobby.rows)
-        res.json(newHobby.rows)
-      }
-    })
+  const postQuery = {
+    text: 'INSERT INTO hobbies (name, description, specs, aspectscores, keywords, resources) VALUES ($1, $2, $3, $4, ARRAY[$5], ARRAY[$6])',
+    values: [req.body.name, req.body.description, JSON.stringify(req.body.specs), JSON.stringify(req.body.aspectscores), req.body.keywords, req.body.resources],
+  }
+  postgres.query(postQuery, (err: any, insertedHobby: any) => {
+    if (err){
+      console.log(err)
+    } else {
+      postgres.query('SELECT * FROM hobbies ORDER BY id desc LIMIT 1;', (err: any, newHobby: any) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log(newHobby.rows)
+          res.json(newHobby.rows)
+        }
+      })
+    }
   })
 })
 
@@ -63,7 +71,11 @@ router.post('/', (req: Request, res: Response) => {
 *Get one
 */
 router.get('/:id', (req: Request, res: Response) => {
-  postgres.query(`SELECT * FROM hobbies WHERE id = ${req.params.id};`, (err: any, newHobby: any) => {
+  const getQuery = {
+    text: 'SELECT * FROM hobbies WHERE id = $1',
+    values: [req.params.id]
+  }
+  postgres.query(getQuery, (err: any, newHobby: any) => {
     if (err) {
       console.log(err)
     } else {
@@ -76,7 +88,11 @@ router.get('/:id', (req: Request, res: Response) => {
 *Delete by id
 */
 router.delete('/:id', (req: Request, res: Response) => {
-  postgres.query(`DELETE FROM hobbies WHERE id = ${req.params.id};`, (err: any, deletedHobby: any) => {
+  const deleteQuery = {
+    text:'DELETE FROM hobbies WHERE id = $1',
+    values:[req.params.id]
+  }
+  postgres.query(deleteQuery, (err: any, deletedHobby: any) => {
     if (err) {
       console.log(err)
     } else {
@@ -102,7 +118,17 @@ router.put('/:id', (req: Request, res: Response) => {
     if (err) {
       console.log(err)
     } else {
-      res.json(updatedHobby.rows)
+      const getQuery = {
+        text: 'SELECT * FROM hobbies WHERE id = $1',
+        values: [req.params.id]
+      }
+      postgres.query(getQuery, (err: any, postUpdateHobby: any) => {
+        if (err) {
+          console.log(err)
+        } else {
+          res.json(postUpdateHobby.rows)
+        }
+      })
     }
   })
 })

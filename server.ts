@@ -2,7 +2,6 @@ import express, { Application, Request, Response, NextFunction } from 'express'
 const app: Application = express()
 const cors = require('cors')
 require('dotenv').config()
-
 const hobbiesController = require('./controllers/hobbies')
 const PORT: number | string = process.env.PORT || 3003
 

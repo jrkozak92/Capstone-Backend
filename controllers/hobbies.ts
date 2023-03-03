@@ -111,13 +111,14 @@ router.delete('/:id', (req: Request, res: Response) => {
 router.put('/:id', (req: Request, res: Response) => {
   const query = {
     text: 'UPDATE hobbies SET name = $1, description = $2, specs = specs || $3, aspectscores = aspectscores || $4, keywords = ARRAY[$5], resources = ARRAY[$6] WHERE id = $7;',
-    values: [req.body.name, req.body.description, JSON.stringify(req.body.specs), JSON.stringify(req.body.aspectscores), req.body.keywords, req.body.resources, Number(req.params.id)],
+    values: [req.body.name, req.body.description, JSON.stringify(req.body.specs), JSON.stringify(req.body.aspectscores), req.body.keywords, req.body.resources, Number(req.params.id)]
   }
   console.log(query)  
   postgres.query(query, (err: any, updatedHobby: any) => {
     if (err) {
       console.log(err)
     } else {
+      console.log("Post update Hobby: ", updatedHobby)
       const getQuery = {
         text: 'SELECT * FROM hobbies WHERE id = $1',
         values: [req.params.id]
@@ -126,6 +127,7 @@ router.put('/:id', (req: Request, res: Response) => {
         if (err) {
           console.log(err)
         } else {
+          console.log("Returning post update hobby of: ", postUpdateHobby)
           res.json(postUpdateHobby.rows)
         }
       })
